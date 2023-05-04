@@ -1,0 +1,45 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.0.4'
+	id 'io.spring.dependency-management' version '1.1.0'
+}
+
+ext {
+	springVersion = "6.0.2"
+}
+
+group = 'br.com.marcelo.azevedo'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	implementation "org.springframework.security:spring-security-core:$springVersion"
+	implementation "org.springframework.security:spring-security-web:$springVersion"
+	implementation "org.springframework.security:spring-security-config:$springVersion"
+
+	implementation 'io.jsonwebtoken:jjwt:0.9.1'
+	implementation 'javax.xml.bind:jaxb-api:2.3.1'
+	implementation 'com.sun.xml.bind:jaxb-core:2.3.0'
+	implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.2'
+	implementation 'jakarta.xml.bind:jakarta.xml.bind-api:2.3.2'
+	implementation 'com.sun.xml.bind:jaxb-impl:2.3.2'
+	implementation 'com.amazonaws:aws-java-sdk-dynamodb:1.12.459'
+	implementation 'io.github.boostchicken:spring-data-dynamodb:5.2.5'
+	implementation 'org.springframework.data:spring-data-releasetrain:Neumann-SR9'
+
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation "org.springframework.security:spring-security-test:$springVersion"
+
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: spring-boot-jwt
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+
+application:
+  configuration:
+    token:
+      expiration-time: 900000

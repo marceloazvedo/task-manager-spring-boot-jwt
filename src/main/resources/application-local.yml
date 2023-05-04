@@ -1,0 +1,7 @@
+amazon:
+  dynamodb:
+    endpoint: http://localhost:8000/
+  aws:
+    accesskey: localhost
+    secretkey: localhost
+    region: us-east-1
