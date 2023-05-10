@@ -13,8 +13,9 @@ public class UserFacade {
     private UserService userService;
 
     public UserCreatedResponse execute(CreateUserRequest createUserRequest) {
-        final var newUser = userService.saveNewUser(createUserRequest);
-        return new UserCreatedResponse(newUser.getId(), newUser.getUsername());
+        userService.validateIfHasUserWithThisUsername(createUserRequest.username());
+        final var newUserCreated = userService.create(createUserRequest);
+        return new UserCreatedResponse(newUserCreated.getId(), newUserCreated.getUsername());
     }
 
 }

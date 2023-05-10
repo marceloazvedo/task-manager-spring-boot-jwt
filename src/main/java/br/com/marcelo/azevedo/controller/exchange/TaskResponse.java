@@ -4,6 +4,8 @@ public record TaskResponse(
         String id,
         String name,
         String note,
-        String needFinishIn
+        String needFinishIn,
+
+        Boolean isFinished
 ) {
 }

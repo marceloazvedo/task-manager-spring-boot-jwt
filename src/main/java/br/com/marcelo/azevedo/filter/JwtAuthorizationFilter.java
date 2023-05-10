@@ -72,7 +72,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 .getBody();
         final var userId = claims.getSubject();
         final var username = (String) claims.get("username");
-        return new ApplicationUserContext(userId, username, null, new ArrayList<>());
+        final var password = (String) claims.get("password");
+        return new ApplicationUserContext(userId, username, password, new ArrayList<>());
     }
 
 }

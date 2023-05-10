@@ -7,16 +7,16 @@ import br.com.marcelo.azevedo.entity.TaskEntity;
 import br.com.marcelo.azevedo.entity.UserEntity;
 import br.com.marcelo.azevedo.repository.TaskRepository;
 import br.com.marcelo.azevedo.repository.UserRepository;
+import com.amazonaws.services.kms.model.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
-import java.util.stream.StreamSupport;
+import java.util.List;
+
+import static br.com.marcelo.azevedo.util.UUIDGeneratorWithPattern.generateTaskId;
 
 @Service
 public class TaskService {
@@ -29,55 +29,58 @@ public class TaskService {
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    public TaskResponse create(TaskRequest taskRequest) {
-        final Optional<UserEntity> userRequesting = getUserRequesting();
-        if(userRequesting.isPresent()) {
-            final var taskEntity = new TaskEntity(
-                    null,
-                    taskRequest.name(),
-                    taskRequest.description(),
-                    LocalDateTime.now(),
-                    LocalDateTime.now(),
-                    LocalDate.parse(taskRequest.isToFinishAt(), formatter).atStartOfDay(),
-                    userRequesting.get().getId(),
-                    Boolean.FALSE,
-                    null
-            );
-            final var newTaskEntity = taskRepository.save(taskEntity);
-            return mapper(newTaskEntity);
-        }
-
-        return null; // TODO: is to throw a exception here
+    public TaskEntity create(TaskRequest taskRequest, UserEntity userRequesting) {
+        final var taskEntity = new TaskEntity(
+                generateTaskId(),
+                taskRequest.name(),
+                taskRequest.description(),
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                LocalDate.parse(taskRequest.isToFinishAt(), formatter).atStartOfDay(),
+                userRequesting.getId(),
+                Boolean.FALSE,
+                null
+        );
+        return taskRepository.save(taskEntity);
     }
 
-    private Optional<UserEntity> getUserRequesting() {
-        final var username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getDetails()).getUsername();
-        return userRepository.findByUsername(username);
+    public List<TaskEntity> findAllByUserIdOwner(String userOwnerId) {
+        return taskRepository.findAllByBelongsToUserId(userOwnerId);
     }
 
-    public ListTaskThatFinishInResponse listThatFinishIn(String date) {
-        final var allTasks = taskRepository.findAll();
-        final var userRequesting = getUserRequesting();
-        if(userRequesting.isPresent()) {
-
-            final var tasksToDate = StreamSupport.stream(allTasks.spliterator(), true)
-                    .filter(task ->
-                            task.getIsToFinishAt().format(formatter).equals(date)
-                                    && task.getBelongsToUserId().equals(userRequesting.get().getId()))
-                    .map(this::mapper).toList();
-
-            return new ListTaskThatFinishInResponse(date, tasksToDate);
-        }
-        return null; // TODO: is to throw a exception here
+    public List<TaskEntity> listThatFinishIn(List<TaskEntity> allTasksOfUser, String date) {
+        final var allTasksOfUserThatFinishIn = allTasksOfUser.parallelStream()
+                .filter(task -> task.getIsToFinishAt().format(formatter).equals(date))
+                .toList();
+        if(allTasksOfUserThatFinishIn.isEmpty()) throw new NotFoundException("Has not task to list!");
+        return allTasksOfUserThatFinishIn;
     }
 
-    private TaskResponse mapper(TaskEntity taskEntity) {
+    public TaskResponse mapper(TaskEntity taskEntity) {
         return new TaskResponse(
                 taskEntity.getId(),
                 taskEntity.getName(),
                 taskEntity.getDescription(),
-                formatter.format(taskEntity.getIsToFinishAt())
+                formatter.format(taskEntity.getIsToFinishAt()),
+                taskEntity.getFinished()
         );
     }
 
+    public ListTaskThatFinishInResponse mapper(String finishIn, List<TaskEntity> tasksThatFinishIn) {
+        return new ListTaskThatFinishInResponse(
+                finishIn,
+                tasksThatFinishIn.stream().map(this::mapper).toList()
+        );
+    }
+
+    public TaskEntity findByIdAndUserOwner(String taskId, String userOwnerId) {
+        return taskRepository.findByIdAndBelongsToUserId(taskId, userOwnerId)
+                .orElseThrow(() -> new NotFoundException("Task not found for this user."));
+    }
+
+    public void markAsFinished(TaskEntity taskToMarkAsFinished) {
+        taskToMarkAsFinished.setFinished(true);
+        taskToMarkAsFinished.setFinishedAt(LocalDateTime.now());
+        taskRepository.save(taskToMarkAsFinished);
+    }
 }

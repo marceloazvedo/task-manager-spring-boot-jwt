@@ -37,7 +37,7 @@ public class JwtService {
 
         Claims claims = Jwts.claims().setSubject(user.getId());
         claims.put("username", user.getUsername());
-
+        claims.put("password", user.getPassword());
         final var jwt = Jwts.builder()
                 .setClaims(claims)
                 .signWith(SignatureAlgorithm.HS512, JWT_SECRET_VALUE)
