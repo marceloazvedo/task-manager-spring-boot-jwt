@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class TaskFacade {
 
+    private final TaskService taskService;
+    private final UserService userService;
+
     public TaskFacade(
             TaskService taskService,
             UserService userService
@@ -17,9 +20,6 @@ public class TaskFacade {
         this.taskService = taskService;
         this.userService = userService;
     }
-
-    private final TaskService taskService;
-    private final UserService userService;
 
     public TaskResponse createTask(TaskRequest taskRequest) {
         final var userRequesting = userService.getUserRequesting();

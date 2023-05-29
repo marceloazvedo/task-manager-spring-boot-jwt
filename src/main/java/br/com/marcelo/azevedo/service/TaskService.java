@@ -6,28 +6,25 @@ import br.com.marcelo.azevedo.controller.exchange.TaskResponse;
 import br.com.marcelo.azevedo.entity.TaskEntity;
 import br.com.marcelo.azevedo.entity.UserEntity;
 import br.com.marcelo.azevedo.repository.TaskRepository;
-import br.com.marcelo.azevedo.repository.UserRepository;
 import com.amazonaws.services.kms.model.NotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import static br.com.marcelo.azevedo.util.Constants.FORMATTER_YYYY_MM_DD;
+import static br.com.marcelo.azevedo.util.LocalDateTimeConverter.getByShortStringFormat;
 import static br.com.marcelo.azevedo.util.UUIDGeneratorWithPattern.generateTaskId;
 
 @Service
 public class TaskService {
 
-    @Autowired
-    private TaskRepository taskRepository;
+    private final TaskRepository taskRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+    public TaskService(TaskRepository taskRepository) {
+        this.taskRepository = taskRepository;
+    }
 
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public TaskEntity create(TaskRequest taskRequest, UserEntity userRequesting) {
         final var taskEntity = new TaskEntity(
@@ -36,7 +33,7 @@ public class TaskService {
                 taskRequest.description(),
                 LocalDateTime.now(),
                 LocalDateTime.now(),
-                LocalDate.parse(taskRequest.isToFinishAt(), formatter).atStartOfDay(),
+                getByShortStringFormat(taskRequest.isToFinishAt()),
                 userRequesting.getId(),
                 Boolean.FALSE,
                 null
@@ -50,7 +47,7 @@ public class TaskService {
 
     public List<TaskEntity> listThatFinishIn(List<TaskEntity> allTasksOfUser, String date) {
         final var allTasksOfUserThatFinishIn = allTasksOfUser.parallelStream()
-                .filter(task -> task.getIsToFinishAt().format(formatter).equals(date))
+                .filter(task -> task.getIsToFinishAt().format(FORMATTER_YYYY_MM_DD).equals(date))
                 .toList();
         if(allTasksOfUserThatFinishIn.isEmpty()) throw new NotFoundException("Has not task to list!");
         return allTasksOfUserThatFinishIn;
@@ -61,7 +58,7 @@ public class TaskService {
                 taskEntity.getId(),
                 taskEntity.getName(),
                 taskEntity.getDescription(),
-                formatter.format(taskEntity.getIsToFinishAt()),
+                FORMATTER_YYYY_MM_DD.format(taskEntity.getIsToFinishAt()),
                 taskEntity.getFinished()
         );
     }

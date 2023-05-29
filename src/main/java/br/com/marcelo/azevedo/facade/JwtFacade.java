@@ -10,11 +10,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class JwtFacade {
 
-    @Autowired
-    private JwtService jwtService;
+    private final JwtService jwtService;
 
-    @Autowired
-    private UserService userService;
+    public JwtFacade(JwtService jwtService) {
+        this.jwtService = jwtService;
+    }
 
     public JwtGeneratedResponse execute(GenerateJwtRequest generateJwtRequest) {
         return jwtService.generateAccessToken(generateJwtRequest);

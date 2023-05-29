@@ -6,7 +6,6 @@ import br.com.marcelo.azevedo.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,11 +17,14 @@ public class JwtService {
 
     public static final String JWT_SECRET_VALUE = "THIS_IS_MY_SECRET";
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+
+    public JwtService(AuthenticationManager authenticationManager, UserRepository userRepository) {
+        this.authenticationManager = authenticationManager;
+        this.userRepository = userRepository;
+    }
 
     public JwtGeneratedResponse generateAccessToken(final GenerateJwtRequest generateJwtRequest) {
         final var authentication = authenticationManager.authenticate(

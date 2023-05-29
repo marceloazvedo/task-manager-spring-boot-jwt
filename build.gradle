@@ -34,9 +34,10 @@ dependencies {
 	implementation 'io.github.boostchicken:spring-data-dynamodb:5.2.5'
 	implementation 'org.springframework.data:spring-data-releasetrain:Neumann-SR9'
 
-
+	testImplementation 'com.amazonaws:DynamoDBLocal:1.21.1'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation "org.springframework.security:spring-security-test:$springVersion"
+	testImplementation 'org.mockito:mockito-core:5.2.0'
 
 }
 

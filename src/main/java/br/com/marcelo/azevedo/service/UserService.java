@@ -6,7 +6,6 @@ import br.com.marcelo.azevedo.entity.UserEntity;
 import br.com.marcelo.azevedo.exception.UserFoundWithThisUsernameException;
 import br.com.marcelo.azevedo.exception.UserNotFoundException;
 import br.com.marcelo.azevedo.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -23,11 +22,17 @@ import static br.com.marcelo.azevedo.util.UUIDGeneratorWithPattern.generateUserI
 @Service
 public class UserService implements UserDetailsService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    public UserService(
+            UserRepository userRepository,
+            BCryptPasswordEncoder bCryptPasswordEncoder
+    ) {
+        this.userRepository = userRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+    }
 
     public UserEntity create(CreateUserRequest createUserRequest) {
         return userRepository.save(

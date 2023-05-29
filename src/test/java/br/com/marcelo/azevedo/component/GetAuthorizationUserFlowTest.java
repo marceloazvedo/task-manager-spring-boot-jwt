@@ -1,7 +1,6 @@
 package br.com.marcelo.azevedo.component;
 
 import br.com.marcelo.azevedo.controller.exchange.GenerateJwtRequest;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 
@@ -15,13 +14,12 @@ public class GetAuthorizationUserFlowTest extends BaseComponentFlowTest {
 
     @Test
     public void shouldCreateAuSerWithSuccess() throws Exception {
-        final var createUserRequest = new ObjectMapper()
-                .writeValueAsString(
-                        new GenerateJwtRequest(
-                                "marceloazevedo",
-                                "12345678"
-                        )
-                );
+        final var createUserRequest = createJsonStringFrom(
+                new GenerateJwtRequest(
+                        "marceloazevedo",
+                        "12345678"
+                )
+        );
 
         this.mockMvc
                 .perform(

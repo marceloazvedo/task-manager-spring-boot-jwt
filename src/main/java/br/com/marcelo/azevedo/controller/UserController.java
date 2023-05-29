@@ -6,7 +6,6 @@ import br.com.marcelo.azevedo.controller.exchange.JwtGeneratedResponse;
 import br.com.marcelo.azevedo.controller.exchange.UserCreatedResponse;
 import br.com.marcelo.azevedo.facade.UserFacade;
 import br.com.marcelo.azevedo.facade.JwtFacade;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,11 +14,14 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/user")
 public class UserController {
 
-    @Autowired
-    private UserFacade userFacade;
+    private final UserFacade userFacade;
 
-    @Autowired
-    private JwtFacade jwtFacade;
+    private final JwtFacade jwtFacade;
+
+    public UserController(UserFacade userFacade, JwtFacade jwtFacade) {
+        this.userFacade = userFacade;
+        this.jwtFacade = jwtFacade;
+    }
 
     @PostMapping
     public ResponseEntity<UserCreatedResponse> createUser(@RequestBody CreateUserRequest createUserRequest) {
