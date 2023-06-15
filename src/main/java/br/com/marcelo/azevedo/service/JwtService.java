@@ -27,6 +27,9 @@ public class JwtService {
     }
 
     public JwtGeneratedResponse generateAccessToken(final GenerateJwtRequest generateJwtRequest) {
+        final var user = userRepository.findByUsername(generateJwtRequest.username())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
+
         final var authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         generateJwtRequest.username(),
@@ -34,8 +37,6 @@ public class JwtService {
                 )
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        final var user = userRepository.findByUsername(generateJwtRequest.username())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
 
         Claims claims = Jwts.claims().setSubject(user.getId());
         claims.put("username", user.getUsername());

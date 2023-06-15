@@ -32,4 +32,8 @@ public class TaskEntityFixture {
         );
     }
 
+    public static TaskEntity generateTaskEntityFixture() {
+        return generateTaskEntityFixture(null, null, null, null);
+    }
+
 }

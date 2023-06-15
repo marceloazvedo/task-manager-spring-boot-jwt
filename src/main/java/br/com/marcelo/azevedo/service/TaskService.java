@@ -5,8 +5,8 @@ import br.com.marcelo.azevedo.controller.exchange.TaskRequest;
 import br.com.marcelo.azevedo.controller.exchange.TaskResponse;
 import br.com.marcelo.azevedo.entity.TaskEntity;
 import br.com.marcelo.azevedo.entity.UserEntity;
+import br.com.marcelo.azevedo.exception.TaskNotFoundException;
 import br.com.marcelo.azevedo.repository.TaskRepository;
-import com.amazonaws.services.kms.model.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -49,7 +49,7 @@ public class TaskService {
         final var allTasksOfUserThatFinishIn = allTasksOfUser.parallelStream()
                 .filter(task -> task.getIsToFinishAt().format(FORMATTER_YYYY_MM_DD).equals(date))
                 .toList();
-        if(allTasksOfUserThatFinishIn.isEmpty()) throw new NotFoundException("Has not task to list!");
+        if(allTasksOfUserThatFinishIn.isEmpty()) throw new TaskNotFoundException();
         return allTasksOfUserThatFinishIn;
     }
 
@@ -72,7 +72,7 @@ public class TaskService {
 
     public TaskEntity findByIdAndUserOwner(String taskId, String userOwnerId) {
         return taskRepository.findByIdAndBelongsToUserId(taskId, userOwnerId)
-                .orElseThrow(() -> new NotFoundException("Task not found for this user."));
+                .orElseThrow(TaskNotFoundException::new);
     }
 
     public void markAsFinished(TaskEntity taskToMarkAsFinished) {
