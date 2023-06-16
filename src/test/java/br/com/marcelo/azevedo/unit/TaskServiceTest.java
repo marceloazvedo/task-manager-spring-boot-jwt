@@ -2,12 +2,14 @@ package br.com.marcelo.azevedo.unit;
 
 
 import br.com.marcelo.azevedo.controller.exchange.TaskRequest;
+import br.com.marcelo.azevedo.entity.TaskEntity;
 import br.com.marcelo.azevedo.exception.TaskNotFoundException;
 import br.com.marcelo.azevedo.repository.TaskRepository;
 import br.com.marcelo.azevedo.service.TaskService;
 import br.com.marcelo.azevedo.util.UUIDGeneratorWithPattern;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +20,7 @@ import static br.com.marcelo.azevedo.fixture.TaskEntityFixture.generateTaskEntit
 import static br.com.marcelo.azevedo.fixture.UserEntityFixture.generateUserEntityFixture;
 import static br.com.marcelo.azevedo.util.UUIDGeneratorWithPattern.generateUserId;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -147,9 +150,14 @@ class TaskServiceTest {
 
         when(taskRepository.save(any())).thenReturn(taskToMarkAsFinished);
 
+        ArgumentCaptor<TaskEntity> taskToSaveInDatabaseCaptor = ArgumentCaptor.forClass(TaskEntity.class);
+
         taskService.markAsFinished(taskToMarkAsFinished);
 
-        verify(taskRepository, times(1)).save(taskToMarkAsFinished);
+        verify(taskRepository, times(1)).save(taskToSaveInDatabaseCaptor.capture());
+        final var taskMarkedAsFinishedAndSaved = taskToSaveInDatabaseCaptor.getValue();
+        assertEquals(true, taskMarkedAsFinishedAndSaved.getFinished());
+        assertNotNull(taskMarkedAsFinishedAndSaved.getFinishedAt());
     }
 
     @Test
@@ -168,7 +176,7 @@ class TaskServiceTest {
 
         final var allTasksFindedForThisUser = taskService.findAllByUserIdOwner(userOwnerId);
 
-        assertEquals(tasksInDatabaseForUser.size(), tasksInDatabaseForUser.size());
+        assertEquals(tasksInDatabaseForUser.size(), allTasksFindedForThisUser.size());
 
         verify(taskRepository, times(1)).findAllByBelongsToUserId(userOwnerId);
     }

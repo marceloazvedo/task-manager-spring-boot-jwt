@@ -3,7 +3,7 @@ package br.com.marcelo.azevedo.service;
 import br.com.marcelo.azevedo.controller.exchange.CreateUserRequest;
 import br.com.marcelo.azevedo.domain.ApplicationUserContext;
 import br.com.marcelo.azevedo.entity.UserEntity;
-import br.com.marcelo.azevedo.exception.UserFoundWithThisUsernameException;
+import br.com.marcelo.azevedo.exception.UserAlreadyExistsException;
 import br.com.marcelo.azevedo.exception.UserNotFoundException;
 import br.com.marcelo.azevedo.repository.UserRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -49,7 +49,7 @@ public class UserService implements UserDetailsService {
 
     public void validateIfHasUserWithThisUsername(String username) {
         final var hasUserWithThisUsername = findUserByUsername(username).isPresent();
-        if (hasUserWithThisUsername) throw new UserFoundWithThisUsernameException();
+        if (hasUserWithThisUsername) throw new UserAlreadyExistsException();
     }
 
     public Optional<UserEntity> findUserByUsername(String username) {

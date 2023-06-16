@@ -57,6 +57,27 @@ public class UserFlowTest extends BaseComponentFlowTest {
     }
 
     @Test
+    public void shouldReturnAErrorWhenTryToCreateAUserWhoAlreadyExists() throws Exception {
+        final var newUserEncryptedPassword = bCryptPasswordEncoder.encode("another_password");
+
+        final var userInDatabase = generateUserEntityFixture(newUserUsername, newUserEncryptedPassword);
+
+        given(userRepository.findByUsername(newUserUsername)).willReturn(Optional.of(userInDatabase));
+
+        final var usernameAndPasswordRequestBody = createGenericUsernameAndPasswordRequestBody();
+
+        this.mockMvc
+                .perform(
+                        post("/user")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(usernameAndPasswordRequestBody)
+                                .with(csrf())
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void shouldAuthenticateAUserWithSuccess() throws Exception {
         final var newUserEncryptedPassword = bCryptPasswordEncoder.encode(newUserPassword);
 
