@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 @Configuration
-@EnableDynamoDBRepositories("br/com/marcelo/azevedo/repository")
+@EnableDynamoDBRepositories("br.com.marcelo.azevedo.repository")
 @Profile("local")
 public class DynamoDBConfig {
 
